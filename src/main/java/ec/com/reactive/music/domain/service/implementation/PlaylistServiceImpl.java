@@ -4,12 +4,15 @@ import ec.com.reactive.music.domain.service.IPlaylistService;
 import ec.com.reactive.music.domain.service.ISongService;
 import ec.com.reactive.music.infrastructure.exceptions.types.HttpException;
 import ec.com.reactive.music.persistence.entities.Playlist;
+import ec.com.reactive.music.persistence.entities.Song;
 import ec.com.reactive.music.persistence.repository.IPlaylistRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalTime;
 
 @Service
 @AllArgsConstructor
@@ -51,12 +54,29 @@ public class PlaylistServiceImpl implements IPlaylistService {
                 );
     }
 
+    private LocalTime calculatePlaylistDuration(Playlist playlist) {
+        LocalTime duration = playlist.getSongs().stream()
+                .map(Song::getDuration)
+                .reduce(
+                        LocalTime.of(0, 0, 0),
+                        (LocalTime accumulator, LocalTime songDuration) -> accumulator
+                                .plusHours(songDuration.getHour())
+                                .plusMinutes(songDuration.getMinute())
+                                .plusSeconds(songDuration.getSecond())
+                );
+        return duration;
+    }
+
     @Override
     public Mono<Playlist> addSong(String playlistId, String songId) {
         return this.findPlaylistById(playlistId)
                 .map(playlist -> {
                     this.songService.findSongById(songId)
                             .subscribe(playlist::addSong);
+                    return playlist;
+                })
+                .map(playlist -> {
+                    playlist.setDuration(this.calculatePlaylistDuration(playlist));
                     return playlist;
                 })
                 .flatMap(playlist -> this.updatePlaylist(playlist.getPlaylistId(), playlist));
@@ -68,6 +88,10 @@ public class PlaylistServiceImpl implements IPlaylistService {
                 .map(playlist -> {
                     this.songService.findSongById(songId)
                             .subscribe(playlist::removeSong);
+                    return playlist;
+                })
+                .map(playlist -> {
+                    playlist.setDuration(this.calculatePlaylistDuration(playlist));
                     return playlist;
                 })
                 .flatMap(playlist -> this.updatePlaylist(playlist.getPlaylistId(), playlist));
