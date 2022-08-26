@@ -1,7 +1,7 @@
-package ec.com.reactive.music.web;
+package ec.com.reactive.music.web.resources;
 
 import ec.com.reactive.music.domain.dto.AlbumDTO;
-import ec.com.reactive.music.service.impl.AlbumServiceImpl;
+import ec.com.reactive.music.domain.service.impl.AlbumServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

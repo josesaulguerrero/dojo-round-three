@@ -1,9 +1,9 @@
-package ec.com.reactive.music.service.impl;
+package ec.com.reactive.music.domain.service.impl;
 
 import ec.com.reactive.music.domain.dto.SongDTO;
-import ec.com.reactive.music.domain.entities.Song;
-import ec.com.reactive.music.repository.ISongRepository;
-import ec.com.reactive.music.service.ISongService;
+import ec.com.reactive.music.domain.service.ISongService;
+import ec.com.reactive.music.persistence.entities.Song;
+import ec.com.reactive.music.persistence.repository.ISongRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

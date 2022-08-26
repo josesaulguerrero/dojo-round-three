@@ -1,8 +1,8 @@
-package ec.com.reactive.music.service.impl;
+package ec.com.reactive.music.domain.service.impl;
 
 import ec.com.reactive.music.domain.dto.AlbumDTO;
-import ec.com.reactive.music.domain.entities.Album;
-import ec.com.reactive.music.repository.IAlbumRepository;
+import ec.com.reactive.music.persistence.entities.Album;
+import ec.com.reactive.music.persistence.repository.IAlbumRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

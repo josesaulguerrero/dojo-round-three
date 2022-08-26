@@ -1,4 +1,4 @@
-package ec.com.reactive.music.domain.entities;
+package ec.com.reactive.music.persistence.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
