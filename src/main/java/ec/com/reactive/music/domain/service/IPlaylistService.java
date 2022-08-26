@@ -17,7 +17,7 @@ public interface IPlaylistService {
 
     Mono<Playlist> addSong(String playlistId, String songId);
 
-    Mono<Playlist> remove(String playlistId, String songId);
+    Mono<Playlist> removeSong(String playlistId, String songId);
 
     Mono<Playlist> deletePlaylist(String id);
 }
