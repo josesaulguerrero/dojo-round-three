@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 @Service
 @AllArgsConstructor
@@ -38,6 +39,8 @@ public class PlaylistServiceImpl implements IPlaylistService {
 
     @Override
     public Mono<Playlist> savePlaylist(Playlist playlist) {
+        playlist.setDuration(LocalTime.of(0,0,0));
+        playlist.setSongs(new ArrayList<>());
         return this.playlistRepository.save(playlist)
                 .switchIfEmpty(
                         Mono.error(new HttpException("The playlist could not be saved.", HttpStatus.INTERNAL_SERVER_ERROR))
@@ -48,14 +51,17 @@ public class PlaylistServiceImpl implements IPlaylistService {
     public Mono<Playlist> updatePlaylist(String playlistId, Playlist playlist) {
         playlist.setPlaylistId(playlistId);
         return this.findPlaylistById(playlistId)
-                .flatMap(entityFromDB -> this.playlistRepository.save(playlist))
+                .flatMap(entityFromDB -> {
+                    entityFromDB.setName(playlist.getName());
+                    return this.playlistRepository.save(entityFromDB);
+                })
                 .switchIfEmpty(
                         Mono.error(new HttpException("The album could not be updated.", HttpStatus.INTERNAL_SERVER_ERROR))
                 );
     }
 
     private LocalTime calculatePlaylistDuration(Playlist playlist) {
-        LocalTime duration = playlist.getSongs().stream()
+        return playlist.getSongs().stream()
                 .map(Song::getDuration)
                 .reduce(
                         LocalTime.of(0, 0, 0),
@@ -64,37 +70,32 @@ public class PlaylistServiceImpl implements IPlaylistService {
                                 .plusMinutes(songDuration.getMinute())
                                 .plusSeconds(songDuration.getSecond())
                 );
-        return duration;
     }
 
     @Override
     public Mono<Playlist> addSong(String playlistId, String songId) {
         return this.findPlaylistById(playlistId)
-                .map(playlist -> {
-                    this.songService.findSongById(songId)
-                            .subscribe(playlist::addSong);
-                    return playlist;
-                })
+                .flatMap(playlist -> this.songService.findSongById(songId)
+                        .doOnNext(playlist::addSong).thenReturn(playlist)
+                )
                 .map(playlist -> {
                     playlist.setDuration(this.calculatePlaylistDuration(playlist));
                     return playlist;
                 })
-                .flatMap(playlist -> this.updatePlaylist(playlist.getPlaylistId(), playlist));
+                .flatMap(this.playlistRepository::save);
     }
 
     @Override
     public Mono<Playlist> removeSong(String playlistId, String songId) {
         return this.findPlaylistById(playlistId)
-                .map(playlist -> {
-                    this.songService.findSongById(songId)
-                            .subscribe(playlist::removeSong);
-                    return playlist;
-                })
+                .flatMap(playlist -> this.songService.findSongById(songId)
+                        .doOnNext(playlist::removeSong).thenReturn(playlist)
+                )
                 .map(playlist -> {
                     playlist.setDuration(this.calculatePlaylistDuration(playlist));
                     return playlist;
                 })
-                .flatMap(playlist -> this.updatePlaylist(playlist.getPlaylistId(), playlist));
+                .flatMap(this.playlistRepository::save);
     }
 
     @Override

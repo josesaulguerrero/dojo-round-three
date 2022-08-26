@@ -8,7 +8,6 @@ import java.util.List;
 
 @Getter
 @ToString
-@NoArgsConstructor
 @AllArgsConstructor
 public class PlaylistDetailDTO {
     private String playlistId;

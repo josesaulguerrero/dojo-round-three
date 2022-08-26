@@ -23,7 +23,7 @@ public class PlaylistResource {
     @GetMapping("all")
     public ResponseEntity<Flux<PlaylistDetailDTO>> getAll() {
         Flux<PlaylistDetailDTO> dtos = this.playlistService.findAllPlaylists()
-                .flatMap(playlist -> Flux.just(this.playlistMapper.entityToDetailDTO(playlist)));
+                .map(playlist -> this.playlistMapper.entityToDetailDTO(playlist));
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
