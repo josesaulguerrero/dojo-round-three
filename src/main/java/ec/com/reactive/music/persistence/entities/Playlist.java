@@ -1,12 +1,13 @@
 package ec.com.reactive.music.persistence.entities;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -20,6 +21,16 @@ public class Playlist {
     private String playlistId;
     private String name;
     private String username;
-    private ArrayList<Song> songs;
+    private List<Song> songs;
     private LocalTime duration;
+
+    public void addSong(Song song) {
+        this.songs.add(song);
+    }
+
+    public void removeSong(Song song) {
+        this.songs = this.songs.stream()
+                .filter(s -> !Objects.equals(s.getSongId(), song.getSongId()))
+                .collect(Collectors.toList());
+    }
 }
