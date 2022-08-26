@@ -15,7 +15,7 @@ import java.time.LocalTime;
 @Document(collection = "songs")
 public class Song {
     @Id
-    private String idSong;
+    private String songId;
     private String albumId;
     private String name;
     private String lyricsBy;
