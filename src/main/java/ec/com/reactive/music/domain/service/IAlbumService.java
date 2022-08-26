@@ -1,22 +1,17 @@
 package ec.com.reactive.music.domain.service;
 
-import ec.com.reactive.music.domain.dto.AlbumDTO;
 import ec.com.reactive.music.persistence.entities.Album;
-import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface IAlbumService {
-    Mono<ResponseEntity<Flux<AlbumDTO>>> findAllAlbums();
-    Mono<ResponseEntity<AlbumDTO>> findAlbumById(String id);
-    Mono<ResponseEntity<AlbumDTO>> saveAlbum(AlbumDTO albumDTO);
-    Mono<ResponseEntity<AlbumDTO>> updateAlbum (String id, AlbumDTO aDto);
+    Flux<Album> findAllAlbums();
 
-    Mono<ResponseEntity<String>> deleteAlbum (String idAlbum);
+    Mono<Album> findAlbumById(String id);
 
-    //ModelMapper functions
-    Album DTOToEntity (AlbumDTO albumDTO);
-    AlbumDTO entityToDTO(Album album);
+    Mono<Album> saveAlbum(Album album);
 
+    Mono<Album> updateAlbum(String id, Album album);
 
+    Mono<Album> deleteAlbum(String id);
 }
