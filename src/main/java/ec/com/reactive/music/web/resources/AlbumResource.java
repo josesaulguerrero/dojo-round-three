@@ -1,49 +1,58 @@
 package ec.com.reactive.music.web.resources;
 
-import ec.com.reactive.music.domain.dto.AlbumDTO;
-import ec.com.reactive.music.domain.service.impl.AlbumServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import ec.com.reactive.music.domain.dto.album.AlbumDetailDTO;
+import ec.com.reactive.music.domain.dto.album.AlbumSaveDTO;
+import ec.com.reactive.music.domain.service.IAlbumService;
+import ec.com.reactive.music.persistence.entities.Album;
+import ec.com.reactive.music.web.mappers.IAlbumMapper;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
+@RequestMapping("albums")
+@AllArgsConstructor
 public class AlbumResource {
-    @Autowired
-    private AlbumServiceImpl albumService;
+    private final IAlbumService albumService;
+    private final IAlbumMapper albumMapper;
 
-    @GetMapping("/findAllAlbums")
-    private Mono<ResponseEntity<Flux<AlbumDTO>>> getAlbums(){
-        return albumService.findAllAlbums();
+    @GetMapping("all")
+    public ResponseEntity<Flux<AlbumDetailDTO>> getAll() {
+        Flux<AlbumDetailDTO> dtos = this.albumService.findAllAlbums()
+                .flatMap(album -> Flux.just(this.albumMapper.entityToDetailDTO(album)));
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
-    //GET
-    @GetMapping("/findAlbum/{id}")
-    private Mono<ResponseEntity<AlbumDTO>> getAlbumById(@PathVariable String id){
-        return albumService.findAlbumById(id);
+    @GetMapping("{id}")
+    public ResponseEntity<Mono<AlbumDetailDTO>> getById(@PathVariable("id") String id) {
+        Mono<AlbumDetailDTO> dto = this.albumService.findAlbumById(id)
+                .flatMap(album -> Mono.just(this.albumMapper.entityToDetailDTO(album)));
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    //POST
-    @PostMapping("/saveAlbum")
-    private Mono<ResponseEntity<AlbumDTO>> postAlbum(@RequestBody AlbumDTO aDto){
-        return albumService.saveAlbum(aDto);
+    @PostMapping("post")
+    public ResponseEntity<Mono<AlbumDetailDTO>> post(@RequestBody AlbumSaveDTO dto) {
+        Album album = this.albumMapper.saveDTOToEntity(dto);
+        Mono<AlbumDetailDTO> mappedDTO = this.albumService.saveAlbum(album)
+                .map(this.albumMapper::entityToDetailDTO);
+        return new ResponseEntity<>(mappedDTO, HttpStatus.CREATED);
     }
 
-    //PUT
-    @PutMapping("/updateAlbum/{id}")
-    private Mono<ResponseEntity<AlbumDTO>> putAlbum(@PathVariable String id , @RequestBody AlbumDTO aDto){
-        return albumService.updateAlbum(id,aDto);
+    @PutMapping("update/{id}")
+    public ResponseEntity<Mono<AlbumDetailDTO>> put(@PathVariable("id") String id, @RequestBody AlbumSaveDTO dto) {
+        Album album = this.albumMapper.saveDTOToEntity(dto);
+        Mono<AlbumDetailDTO> mappedDTO = this.albumService.updateAlbum(id, album)
+                .map(this.albumMapper::entityToDetailDTO);
+        return new ResponseEntity<>(mappedDTO, HttpStatus.OK);
     }
 
-    //DELETE
-    @DeleteMapping("/deleteAlbum/{id}")
-    private Mono<ResponseEntity<String>> deleteAlbum(@PathVariable String id){
-        return albumService.deleteAlbum(id);
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<Mono<AlbumDetailDTO>> delete(@PathVariable("id") String id) {
+        Mono<AlbumDetailDTO> dto = this.albumService.deleteAlbum(id)
+                .flatMap(album -> Mono.just(this.albumMapper.entityToDetailDTO(album)));
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
-
-
-
-
-
 }
