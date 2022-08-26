@@ -45,13 +45,13 @@ public class SongServiceImpl implements ISongService {
         return this.findSongById(songId)
                 .flatMap(entityFromDB -> this.songRepository.save(song))
                 .switchIfEmpty(
-                        Mono.error(new HttpException("The album could not be updated.", HttpStatus.INTERNAL_SERVER_ERROR))
+                        Mono.error(new HttpException("The song could not be updated.", HttpStatus.INTERNAL_SERVER_ERROR))
                 );
     }
 
     @Override
     public Mono<Song> deleteSong(String songId) {
         return this.findSongById(songId)
-                .flatMap(album -> this.songRepository.deleteById(songId).thenReturn(album));
+                .flatMap(song -> this.songRepository.deleteById(songId).thenReturn(song));
     }
 }
