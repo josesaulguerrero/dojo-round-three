@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "albums")
 public class Album {
     @Id
-    private String idAlbum;
+    private String albumId;
     private String name;
     private String artist;
     private Long releaseYear;

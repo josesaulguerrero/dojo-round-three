@@ -41,8 +41,9 @@ public class AlbumServiceImpl implements IAlbumService {
     }
 
     @Override
-    public Mono<Album> updateAlbum(String id, Album album) {
-        return this.findAlbumById(id)
+    public Mono<Album> updateAlbum(String albumId, Album album) {
+        album.setAlbumId(albumId);
+        return this.findAlbumById(albumId)
                 .flatMap(entityFromDB -> this.albumRepository.save(album))
                 .switchIfEmpty(
                         Mono.error(new HttpException("The album could not be updated.", HttpStatus.INTERNAL_SERVER_ERROR))
