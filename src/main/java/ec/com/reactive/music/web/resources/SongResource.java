@@ -1,51 +1,59 @@
 package ec.com.reactive.music.web.resources;
 
-import ec.com.reactive.music.domain.dto.SongDTO;
-import ec.com.reactive.music.domain.service.IAlbumService;
+
+import ec.com.reactive.music.domain.dto.song.SongDetailDTO;
+import ec.com.reactive.music.domain.dto.song.SongSaveDTO;
 import ec.com.reactive.music.domain.service.ISongService;
-import org.springframework.beans.factory.annotation.Autowired;
+import ec.com.reactive.music.persistence.entities.Song;
+import ec.com.reactive.music.web.mappers.ISongMapper;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@RestController
+@RequestMapping("songs")
+@AllArgsConstructor
 public class SongResource {
-    @Autowired
     private ISongService songService;
+    private ISongMapper songMapper;
 
-    @Autowired
-    private IAlbumService albumService;
-
-    //GET
-    @GetMapping("/findAllSongs")
-    private Mono<ResponseEntity<Flux<SongDTO>>> getSongs(){
-        return songService.findAllSongs();
+    @GetMapping("all")
+    public ResponseEntity<Flux<SongDetailDTO>> getAll() {
+        Flux<SongDetailDTO> dtos = this.songService.findAllSongs()
+                .flatMap(song -> Flux.just(this.songMapper.entityToDetailDTO(song)));
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
-    //GET
-    @GetMapping("/findSong/{id}")
-    private Mono<ResponseEntity<SongDTO>> getSongById(@PathVariable String id){
-        return songService.findSongById(id);
+    @GetMapping("{id}")
+    public ResponseEntity<Mono<SongDetailDTO>> getById(@PathVariable("id") String id) {
+        Mono<SongDetailDTO> dto = this.songService.findSongById(id)
+                .flatMap(song -> Mono.just(this.songMapper.entityToDetailDTO(song)));
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    //POST
-    @PostMapping("/saveSong")
-    private Mono<ResponseEntity<SongDTO>> postSong(@RequestBody SongDTO sDto){
-        return albumService.findAlbumById(sDto.getIdAlbum())
-                .flatMap(albumDTOResponseEntity -> albumDTOResponseEntity.getStatusCode().is4xxClientError() ?
-                        songService.saveSong(sDto.toBuilder().idAlbum("Does not exist").build())
-                        : songService.saveSong(sDto));
+    @PostMapping("post")
+    public ResponseEntity<Mono<SongDetailDTO>> post(@RequestBody SongSaveDTO dto) {
+        Song song = this.songMapper.saveDTOToEntity(dto);
+        Mono<SongDetailDTO> mappedDTO = this.songService.saveSong(song)
+                .map(this.songMapper::entityToDetailDTO);
+        return new ResponseEntity<>(mappedDTO, HttpStatus.CREATED);
     }
 
-    //PUT
-    @PutMapping("/updateSong/{id}")
-    private Mono<ResponseEntity<SongDTO>> putSong(@PathVariable String id, @RequestBody SongDTO sDto){
-        return songService.updateSong(id,sDto);
+    @PutMapping("update/{id}")
+    public ResponseEntity<Mono<SongDetailDTO>> put(@PathVariable("id") String id, @RequestBody SongSaveDTO dto) {
+        Song song = this.songMapper.saveDTOToEntity(dto);
+        Mono<SongDetailDTO> mappedDTO = this.songService.updateSong(id, song)
+                .map(this.songMapper::entityToDetailDTO);
+        return new ResponseEntity<>(mappedDTO, HttpStatus.OK);
     }
 
-    //DELETE
-    @DeleteMapping("/deleteSong/{id}")
-    private Mono<ResponseEntity<String>> deleteSong(@PathVariable String id){
-        return songService.deleteSong(id);
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<Mono<SongDetailDTO>> delete(@PathVariable("id") String id) {
+        Mono<SongDetailDTO> dto = this.songService.deleteSong(id)
+                .flatMap(song -> Mono.just(this.songMapper.entityToDetailDTO(song)));
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 }
