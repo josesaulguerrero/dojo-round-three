@@ -1,6 +1,6 @@
-package ec.com.reactive.music.domain.service.impl;
+package ec.com.reactive.music.domain.service.implementation;
 
-import ec.com.reactive.music.domain.dto.AlbumDTO;
+import ec.com.reactive.music.domain.dto.album.AlbumDetailDTO;
 import ec.com.reactive.music.persistence.entities.Album;
 import ec.com.reactive.music.persistence.repository.IAlbumRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,13 +46,13 @@ class AlbumServiceImplTest {
         listAlbums.add(new Album());
         listAlbums.add(new Album());
 
-        ArrayList<AlbumDTO> listAlbumsDTO = listAlbums.stream().map(album -> modelMapper.map(album,AlbumDTO.class)).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<AlbumDetailDTO> listAlbumsDTO = listAlbums.stream().map(album -> modelMapper.map(album, AlbumDetailDTO.class)).collect(Collectors.toCollection(ArrayList::new));
 
         var fluxResult = Flux.fromIterable(listAlbums);
         var fluxResultDTO = Flux.fromIterable(listAlbumsDTO);
 
         //La respuesta esperada
-        ResponseEntity<Flux<AlbumDTO>> respEntResult = new ResponseEntity<>(fluxResultDTO, HttpStatus.FOUND);
+        ResponseEntity<Flux<AlbumDetailDTO>> respEntResult = new ResponseEntity<>(fluxResultDTO, HttpStatus.FOUND);
 
         //3. Mockeo - Mockear el resultado esperado
         Mockito.when(albumRepositoryMock.findAll()).thenReturn(fluxResult);
@@ -79,9 +79,9 @@ class AlbumServiceImplTest {
         albumExpected.setArtist("testerArtist");
         albumExpected.setYearRelease(2015);
 
-        var albumDTOExpected = modelMapper.map(albumExpected,AlbumDTO.class);
+        var albumDTOExpected = modelMapper.map(albumExpected, AlbumDetailDTO.class);
 
-        ResponseEntity<AlbumDTO> albumDTOResponse = new ResponseEntity<>(albumDTOExpected,HttpStatus.FOUND);
+        ResponseEntity<AlbumDetailDTO> albumDTOResponse = new ResponseEntity<>(albumDTOExpected,HttpStatus.FOUND);
 
         Mockito.when(albumRepositoryMock.findById(Mockito.any(String.class))).thenReturn(Mono.just(albumExpected));
 
@@ -100,7 +100,7 @@ class AlbumServiceImplTest {
     @DisplayName("findAlbumByIdError()")
     void findAlbumByIdError() { //Not found
 
-        ResponseEntity<AlbumDTO> albumDTOResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<AlbumDetailDTO> albumDTOResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         Mockito.when(albumRepositoryMock.findById(Mockito.any(String.class))).thenReturn(Mono.empty());
 
@@ -121,9 +121,9 @@ class AlbumServiceImplTest {
         albumExpected.setArtist("testerArtist");
         albumExpected.setYearRelease(2015);
 
-        var albumDTOExpected = modelMapper.map(albumExpected,AlbumDTO.class);
+        var albumDTOExpected = modelMapper.map(albumExpected, AlbumDetailDTO.class);
 
-        ResponseEntity<AlbumDTO> albumDTOResponse = new ResponseEntity<>(albumDTOExpected,HttpStatus.CREATED);
+        ResponseEntity<AlbumDetailDTO> albumDTOResponse = new ResponseEntity<>(albumDTOExpected,HttpStatus.CREATED);
 
         Mockito.when(albumRepositoryMock.save(Mockito.any(Album.class))).thenReturn(Mono.just(albumExpected));
 
@@ -149,10 +149,10 @@ class AlbumServiceImplTest {
 
         var albumEdited = albumExpected.toBuilder().name("albumTestingEdited").build();
 
-        var albumDTOEdited = modelMapper.map(albumEdited,AlbumDTO.class);
+        var albumDTOEdited = modelMapper.map(albumEdited, AlbumDetailDTO.class);
 
 
-        ResponseEntity<AlbumDTO> albumDTOResponse = new ResponseEntity<>(albumDTOEdited,HttpStatus.ACCEPTED);
+        ResponseEntity<AlbumDetailDTO> albumDTOResponse = new ResponseEntity<>(albumDTOEdited,HttpStatus.ACCEPTED);
 
         //You need to mock the findById first and because you use it previous the save/update
         Mockito.when(albumRepositoryMock.findById(Mockito.any(String.class))).thenReturn(Mono.just(albumExpected));

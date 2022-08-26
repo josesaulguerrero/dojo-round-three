@@ -10,7 +10,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class SongDetailDTO {
-    private String idSong;
+    private String songId;
     private String albumId;
     private String name;
     private String lyricsBy;

@@ -12,7 +12,6 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class SongSaveDTO {
-    private String idSong;
     private String albumId;
     private String name;
     private String lyricsBy;

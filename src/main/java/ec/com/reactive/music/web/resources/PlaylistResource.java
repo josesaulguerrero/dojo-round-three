@@ -1,4 +1,4 @@
-package ec.com.reactive.music.web.controllers;
+package ec.com.reactive.music.web.resources;
 
 
 import ec.com.reactive.music.domain.dto.playlist.PlaylistDetailDTO;

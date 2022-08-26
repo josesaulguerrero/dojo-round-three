@@ -1,4 +1,4 @@
-package ec.com.reactive.music.web.controllers;
+package ec.com.reactive.music.web.resources;
 
 import ec.com.reactive.music.domain.dto.album.AlbumDetailDTO;
 import ec.com.reactive.music.domain.dto.album.AlbumSaveDTO;
@@ -6,7 +6,6 @@ import ec.com.reactive.music.domain.service.IAlbumService;
 import ec.com.reactive.music.persistence.entities.Album;
 import ec.com.reactive.music.web.mappers.IAlbumMapper;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,6 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class AlbumResource {
     private final IAlbumService albumService;
-    @Autowired
     private final IAlbumMapper albumMapper;
 
     @GetMapping("all")
